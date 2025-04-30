@@ -1,7 +1,7 @@
 package kaixin.learning.mongodb.model;
 
-
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -11,18 +11,21 @@ import java.util.Objects;
 @Document(collection = "products")
 @Getter
 @Setter
-public class Product {
+@NoArgsConstructor
+public abstract class Product {
 
     @Id
     private String id;
     private String name;
     private String description;
     private Double price;
+    private String productType;
 
-    public Product(String name, String description, Double price) {
+    public Product(String name, String description, Double price, String productType) {
         this.name = name;
         this.description = description;
         this.price = price;
+        this.productType = productType;
     }
 
     @Override
@@ -36,15 +39,5 @@ public class Product {
     @Override
     public int hashCode() {
         return Objects.hash(id);
-    }
-
-    @Override
-    public String toString() {
-        return "Product{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", price=" + price +
-                '}';
     }
 }

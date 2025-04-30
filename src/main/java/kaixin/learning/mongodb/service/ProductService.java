@@ -26,21 +26,11 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    public List<Product> saveAll(List<Product> products) {
-        return productRepository.saveAll(products);
+    public List<Product> findByProductType(String productType) {
+        return productRepository.findByProductType(productType);
     }
 
-    public void deleteById(String id) {
-        productRepository.deleteById(id);
-    }
-
-    public void delete(Product product) {
-        productRepository.delete(product);
-    }
-
-    public void deleteAll() {
-        productRepository.deleteAll();
-    }
+    // Other standard CRUD methods
 
     public List<Product> findByNameContaining(String name) {
         return productRepository.findByNameContaining(name);
@@ -52,5 +42,9 @@ public class ProductService {
 
     public boolean existsById(String id) {
         return productRepository.existsById(id);
+    }
+
+    public void deleteById(String id) {
+        productRepository.deleteById(id);
     }
 }
