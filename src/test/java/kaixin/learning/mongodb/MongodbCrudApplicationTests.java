@@ -235,6 +235,124 @@ class UserRoleRepositoryTest {
         assertEquals(2, foundUser.getRoles().size());
     }
 
+    @Test
+    void testFindByRole() {
+        // Create multiple roles
+        List<Role> roles = createRoles(5);
+
+        // Select specific roles to search for later
+        String roleName0 = roles.get(0).getName();
+
+        // Create multiple users with different role combinations
+        User user1 = buildUser(1);
+        User user2 = buildUser(2);
+        User user3 = buildUser(3);
+
+        // Save users to get IDs
+        user1 = userRepository.save(user1);
+        user2 = userRepository.save(user2);
+        user3 = userRepository.save(user3);
+
+        // Assign roles to users
+        // User1 gets role 0
+        user1.getRoles().add(new User.RoleReference(roles.get(0).getId(), roles.get(0).getName()));
+
+        // User2 gets roles 1 and 2
+        user2.getRoles().add(new User.RoleReference(roles.get(1).getId(), roles.get(1).getName()));
+        user2.getRoles().add(new User.RoleReference(roles.get(2).getId(), roles.get(2).getName()));
+
+        // User3 gets roles 3 and 4
+        user3.getRoles().add(new User.RoleReference(roles.get(3).getId(), roles.get(3).getName()));
+        user3.getRoles().add(new User.RoleReference(roles.get(4).getId(), roles.get(4).getName()));
+
+        // Save all users with their role assignments
+        userRepository.saveAll(List.of(user1, user2, user3));
+
+        // Test searching for users with specific role names
+        List<User> foundUsers = userRepository.findByContainRole(roleName0);
+
+        // Should find user1 (has role0) and user2 (has role2)
+        assertEquals(1, foundUsers.size());
+
+        // Verify we found the correct users
+        List<String> foundUsernames = foundUsers.stream()
+                                                .map(User::getUsername)
+                                                .toList();
+
+        assertTrue(foundUsernames.contains(user1.getUsername()));
+        assertFalse(foundUsernames.contains(user2.getUsername()));
+        assertFalse(foundUsernames.contains(user3.getUsername()));
+
+        // Test with a role name that no user has
+        List<User> noUsers = userRepository.findByAnyRoleIn(List.of("NON_EXISTENT_ROLE"));
+        assertTrue(noUsers.isEmpty());
+
+        // Test with empty list
+        List<User> emptySearch = userRepository.findByAnyRoleIn(List.of());
+        assertTrue(emptySearch.isEmpty());
+    }
+
+    @Test
+    void testFindByAnyRoleIdIn() {
+        // Create multiple roles
+        List<Role> roles = createRoles(5);
+
+        // Select specific roles to search for later
+        String roleName0 = roles.get(0).getName();
+        String roleName2 = roles.get(2).getName();
+
+        // Create multiple users with different role combinations
+        User user1 = buildUser(1);
+        User user2 = buildUser(2);
+        User user3 = buildUser(3);
+
+        // Save users to get IDs
+        user1 = userRepository.save(user1);
+        user2 = userRepository.save(user2);
+        user3 = userRepository.save(user3);
+
+        // Assign roles to users
+        // User1 gets role 0
+        user1.getRoles().add(new User.RoleReference(roles.get(0).getId(), roles.get(0).getName()));
+
+        // User2 gets roles 1 and 2
+        user2.getRoles().add(new User.RoleReference(roles.get(1).getId(), roles.get(1).getName()));
+        user2.getRoles().add(new User.RoleReference(roles.get(2).getId(), roles.get(2).getName()));
+
+        // User3 gets roles 3 and 4
+        user3.getRoles().add(new User.RoleReference(roles.get(3).getId(), roles.get(3).getName()));
+        user3.getRoles().add(new User.RoleReference(roles.get(4).getId(), roles.get(4).getName()));
+
+        // Save all users with their role assignments
+        userRepository.saveAll(List.of(user1, user2, user3));
+
+        // Test searching for users with specific role names
+        List<String> searchRoleNames = List.of(roleName0, roleName2);
+        List<User> foundUsers = userRepository.findByAnyRoleIn(searchRoleNames);
+
+        // Should find user1 (has role0) and user2 (has role2)
+        assertEquals(2, foundUsers.size());
+
+        // Verify we found the correct users
+        List<String> foundUsernames = foundUsers.stream()
+                                                .map(User::getUsername)
+                                                .toList();
+
+        assertTrue(foundUsernames.contains(user1.getUsername()));
+        assertTrue(foundUsernames.contains(user2.getUsername()));
+        assertFalse(foundUsernames.contains(user3.getUsername()));
+
+        // Test with a role name that no user has
+        List<User> noUsers = userRepository.findByAnyRoleIn(List.of("NON_EXISTENT_ROLE"));
+        assertTrue(noUsers.isEmpty());
+
+        // Test with empty list
+        List<User> emptySearch = userRepository.findByAnyRoleIn(List.of());
+        assertTrue(emptySearch.isEmpty());
+    }
+
+
+
     private List<Role> createRoles(int count) {
         System.out.println("Creating " + count + " roles...");
         List<Role> roles = new ArrayList<>();
